@@ -129,7 +129,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 CSRF_COOKIE_SECURE = False  # Para desenvolvimento, mude para True em produção com HTTPS
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+# Lista base de origens confiáveis
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000', 
+    'http://127.0.0.1:8000',
+    'https://notasfaltantes2.onrender.com',
+    'http://notasfaltantes2.onrender.com',
+]
+
+# Adicionar automaticamente domínios do ALLOWED_HOSTS
+import os
+if not DEBUG:
+    # Em produção, adicionar domínios automaticamente
+    for host in ALLOWED_HOSTS:
+        if host != '*' and host not in ['localhost', '127.0.0.1']:
+            if f'https://{host}' not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+            if f'http://{host}' not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+
+# Verificar se existe variável de ambiente com domínio
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.extend([
+        f'https://{RENDER_EXTERNAL_HOSTNAME}',
+        f'http://{RENDER_EXTERNAL_HOSTNAME}',
+    ])
 
 # Configurações de sessão
 SESSION_COOKIE_SECURE = False  # Para desenvolvimento, mude para True em produção com HTTPS
