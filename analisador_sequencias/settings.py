@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -45,7 +46,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # DESABILITADO PARA PRODUÇÃO SIMPLES
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -125,43 +126,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Configurações de segurança CSRF
-CSRF_COOKIE_SECURE = False  # Para desenvolvimento, mude para True em produção com HTTPS
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'
-
-# Lista base de origens confiáveis
-CSRF_TRUSTED_ORIGINS = ['*']
-
-# Adicionar automaticamente domínios do ALLOWED_HOSTS
-import os
-if not DEBUG:
-    # Em produção, adicionar domínios automaticamente
-    for host in ALLOWED_HOSTS:
-        if host != '*' and host not in ['localhost', '127.0.0.1']:
-            if f'https://{host}' not in CSRF_TRUSTED_ORIGINS:
-                CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
-            if f'http://{host}' not in CSRF_TRUSTED_ORIGINS:
-                CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
-
-# Verificar se existe variável de ambiente com domínio
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.extend([
-        f'https://{RENDER_EXTERNAL_HOSTNAME}',
-        f'http://{RENDER_EXTERNAL_HOSTNAME}',
-    ])
-
 # Configurações de sessão
-SESSION_COOKIE_SECURE = False  # Para desenvolvimento, mude para True em produção com HTTPS
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Configuração de upload de arquivos
-FILE_UPLOAD_MAX_MEMORY_SIZE = 15242880  # 15MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880  # 15MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
-# Configurações para evitar cache no Replit
+# Configurações para evitar cache no desenvolvimento
 if DEBUG:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 

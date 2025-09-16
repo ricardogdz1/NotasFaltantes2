@@ -14,7 +14,6 @@
             </div>
             <div class="card-body p-4">
                 <form method="post" action="{% url 'analisador:processar' %}" enctype="multipart/form-data" id="uploadForm">
-                    {% csrf_token %}
                     
                     <div class="file-upload-area mb-4" id="fileUploadArea">
                         <i class="bi bi-cloud-upload display-1 text-primary mb-3"></i>
@@ -158,10 +157,10 @@ function initFileUpload() {
         // Mostrar informações do arquivo
         fileInfo.style.display = 'block';
         
-        // Validar tamanho (15MB máximo)
-        if (file.size > 15 * 1024 * 1024) {
+        // Validar tamanho (5MB máximo)
+        if (file.size > 5 * 1024 * 1024) {
             fileInfo.className = 'alert alert-danger';
-            fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 15MB)';
+            fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 5MB)';
             submitBtn.disabled = true;
         } else {
             fileInfo.className = 'alert alert-info';

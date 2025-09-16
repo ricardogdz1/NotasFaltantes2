@@ -1,28 +1,22 @@
 from django.shortcuts import render, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_protect
-from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+from django.conf import settings
 import os
-import tempfile
 
 from .servicos import AnalisadorSequencia
 
 
-@csrf_protect
 def pagina_inicial(request):
     """
     View da página inicial com formulário de upload.
     """
-    # Garante que o token CSRF está disponível
-    csrf_token = get_token(request)
-    return render(request, 'analisador/index.html', {'csrf_token': csrf_token})
+    return render(request, 'analisador/index.html')
 
 
-@csrf_protect
+@csrf_exempt
 @require_http_methods(["POST"])
 def processar_arquivo(request):
     """
