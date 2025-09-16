@@ -136,6 +136,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'https://notasfaltantes2.onrender.com',
     'http://notasfaltantes2.onrender.com',
+    'http://notasfaltantes.com.br',
+    'http://www.notasfaltantes.com.br',
 ]
 
 # Adicionar automaticamente domínios do ALLOWED_HOSTS
@@ -163,8 +165,8 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Configuração de upload de arquivos
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15242880  # 15MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 15242880  # 15MB
 
 # Configurações para evitar cache no Replit
 if DEBUG:
