@@ -1,0 +1,151 @@
+{% extends 'analisador/base.html' %}
+
+{% block title %}Upload de Arquivo - Analisador de Sequências{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">
+                    <i class="bi bi-cloud-upload"></i>
+                    Enviar Arquivo para Análise
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" action="{% url 'analisador:processar' %}" enctype="multipart/form-data" id="uploadForm">
+                    {% csrf_token %}
+                    
+                    <div class="file-upload-area mb-4" id="fileUploadArea">
+                        <i class="bi bi-cloud-upload display-1 text-primary mb-3"></i>
+                        <h4>Clique aqui ou arraste seu arquivo TXT</h4>
+                        <p class="text-muted mb-3">Formatos suportados: .txt (máximo 5MB)</p>
+                        <input type="file" id="arquivo" name="arquivo" accept=".txt" class="form-control d-none" required>
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('arquivo').click()">
+                                <i class="bi bi-folder2-open"></i>
+                                Selecionar Arquivo
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="fileInfo" class="alert alert-info d-none">
+                        <i class="bi bi-file-earmark-text"></i>
+                        <strong>Arquivo selecionado:</strong> <span id="fileName"></span>
+                        <br><small id="fileSize" class="text-muted"></small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn" disabled>
+                        <i class="bi bi-play-circle"></i>
+                        Analisar Sequência Numérica
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Informações sobre formatos suportados -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    Formatos Suportados
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-check-circle text-success"></i> Vírgulas</h6>
+                        <code class="small">1, 2, 3, 4, 6, 7</code>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-check-circle text-success"></i> Quebras de linha</h6>
+                        <code class="small">1<br>2<br>3<br>4<br>6<br>7</code>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="bi bi-check-circle text-success"></i> Misto</h6>
+                        <code class="small">1,<br>2,<br>3,<br>4,<br>6,<br>7</code>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-muted small">
+                    <strong>Dica:</strong> O analisador identifica automaticamente o menor e maior número da sequência e mostra todos os números faltantes no intervalo.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('arquivo');
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Click no área de upload
+    fileUploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // Mudança no input de arquivo
+    fileInput.addEventListener('change', function() {
+        handleFileSelect(this.files[0]);
+    });
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                fileInput.files = files;
+                handleFileSelect(file);
+            } else {
+                alert('Por favor, selecione apenas arquivos .txt');
+            }
+        }
+    });
+    
+    function handleFileSelect(file) {
+        if (file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = `Tamanho: ${(file.size / 1024).toFixed(2)} KB`;
+            fileInfo.classList.remove('d-none');
+            submitBtn.disabled = false;
+            
+            // Validar tamanho
+            if (file.size > 5 * 1024 * 1024) { // 5MB
+                fileInfo.className = 'alert alert-danger';
+                fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 5MB)';
+                submitBtn.disabled = true;
+            } else {
+                fileInfo.className = 'alert alert-info';
+            }
+        }
+    }
+    
+    // Loading no submit
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processando...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends 'analisador/base.html' %}
+
+{% block title %}Resultado da Análise - Analisador de Sequências{% endblock %}
+
+{% block content %}
+<!-- Botão de Nova Análise -->
+<div class="text-center mb-4">
+    <a href="{% url 'analisador:index' %}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i>
+        Nova Análise
+    </a>
+</div>
+
+<!-- Informações do Arquivo -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-file-earmark-check"></i>
+                    Arquivo Analisado: {{ nome_arquivo }}
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="estatistica-item">
+            <div class="estatistica-numero">{{ resultado.estatisticas.total_numeros_arquivo }}</div>
+            <div class="text-muted">Números no Arquivo</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="estatistica-item">
+            <div class="estatistica-numero text-success">{{ resultado.estatisticas.numeros_unicos }}</div>
+            <div class="text-muted">Números Únicos</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="estatistica-item">
+            <div class="estatistica-numero text-danger">{{ resultado.estatisticas.total_faltantes }}</div>
+            <div class="text-muted">Números Faltantes</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="estatistica-item">
+            <div class="estatistica-numero text-warning">{{ resultado.estatisticas.total_duplicados }}</div>
+            <div class="text-muted">Números Duplicados</div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações da Sequência -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h5>Intervalo da Sequência</h5>
+                        <p class="lead text-primary">{{ resultado.intervalo.menor }} até {{ resultado.intervalo.maior }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Tamanho Esperado</h5>
+                        <p class="lead">{{ resultado.estatisticas.tamanho_sequencia_esperada }} números</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Completude</h5>
+                        <p class="lead text-{% if resultado.estatisticas.percentual_completo >= 90 %}success{% elif resultado.estatisticas.percentual_completo >= 70 %}warning{% else %}danger{% endif %}">{{ resultado.estatisticas.percentual_completo }}%</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h5>Status</h5>
+                        <p class="lead">
+                            {% if resultado.estatisticas.total_faltantes == 0 and resultado.estatisticas.total_duplicados == 0 %}
+                                <span class="text-success"><i class="bi bi-check-circle"></i> Perfeita</span>
+                            {% elif resultado.estatisticas.total_faltantes == 0 %}
+                                <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Com Duplicados</span>
+                            {% else %}
+                                <span class="text-danger"><i class="bi bi-x-circle"></i> Incompleta</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Números Faltantes -->
+{% if tem_faltantes %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Números Faltantes ({{ resultado.estatisticas.total_faltantes }})
+                </h4>
+                <button type="button" class="btn btn-light copy-btn" id="copiarFaltantes" data-bs-toggle="tooltip" title="Copiar lista de números faltantes">
+                    <i class="bi bi-clipboard"></i>
+                    Copiar Lista
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Lista para cópia:</strong>
+                    <div class="border rounded p-3 mt-2 bg-light" id="listaFaltantes">
+                        {{ lista_faltantes_copia }}
+                    </div>
+                </div>
+                
+                <strong>Números faltantes individuais:</strong>
+                <div class="mt-3" style="max-height: 400px; overflow-y: auto;">
+                    {% for numero in resultado.numeros_faltantes %}
+                        <span class="badge numero-badge faltante">{{ numero }}</span>
+                        {% if forloop.counter|divisibleby:20 %}<br>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-check-circle"></i>
+                    Números Faltantes
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <strong>Parabéns!</strong> Não há números faltantes na sequência. Sua sequência está completa!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Números Duplicados -->
+{% if tem_duplicados %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">
+                    <i class="bi bi-files"></i>
+                    Números Duplicados ({{ resultado.estatisticas.total_duplicados }})
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for duplicado in resultado.numeros_duplicados %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center p-3">
+                                <h5 class="card-title text-warning mb-1">{{ duplicado.numero }}</h5>
+                                <p class="card-text mb-0">
+                                    <small class="text-muted">Aparece {{ duplicado.quantidade }} vezes</small>
+                                </p>
+                                <span class="badge numero-badge duplicado">{{ duplicado.quantidade }}x</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-check-circle"></i>
+                    Números Duplicados
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <strong>Ótimo!</strong> Não há números duplicados na sequência. Todos os números aparecem apenas uma vez!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Toast para confirmação de cópia -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastCopia" class="toast" role="alert">
+        <div class="toast-header bg-success text-white">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong class="me-auto">Sucesso</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">
+            Lista de números faltantes copiada para a área de transferência!
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    
+    // Funcionalidade de cópia
+    const botaoCopiar = document.getElementById('copiarFaltantes');
+    const listaFaltantes = document.getElementById('listaFaltantes');
+    const toast = new bootstrap.Toast(document.getElementById('toastCopia'));
+    
+    if (botaoCopiar && listaFaltantes) {
+        botaoCopiar.addEventListener('click', async function() {
+            try {
+                const texto = listaFaltantes.textContent.trim();
+                
+                if (navigator.clipboard && window.isSecureContext) {
+                    // API moderna de clipboard
+                    await navigator.clipboard.writeText(texto);
+                    mostrarSucesso();
+                } else {
+                    // Fallback para navegadores mais antigos
+                    const textArea = document.createElement('textarea');
+                    textArea.value = texto;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    try {
+                        document.execCommand('copy');
+                        mostrarSucesso();
+                    } catch (err) {
+                        console.error('Erro ao copiar:', err);
+                        alert('Erro ao copiar. Tente selecionar e copiar manualmente.');
+                    }
+                    
+                    document.body.removeChild(textArea);
+                }
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                alert('Erro ao copiar. Tente selecionar e copiar manualmente.');
+            }
+        });
+        
+        function mostrarSucesso() {
+            // Mudar ícone do botão temporariamente
+            const icone = botaoCopiar.querySelector('i');
+            const textoOriginal = botaoCopiar.innerHTML;
+            
+            botaoCopiar.innerHTML = '<i class="bi bi-check"></i> Copiado!';
+            botaoCopiar.classList.remove('btn-light');
+            botaoCopiar.classList.add('btn-success');
+            
+            // Mostrar toast
+            toast.show();
+            
+            // Restaurar botão após 2 segundos
+            setTimeout(() => {
+                botaoCopiar.innerHTML = textoOriginal;
+                botaoCopiar.classList.remove('btn-success');
+                botaoCopiar.classList.add('btn-light');
+            }, 2000);
+        }
+    }
+});
+</script>
+{% endblock %}
