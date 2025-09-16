@@ -99,7 +99,7 @@
                     <i class="bi bi-exclamation-triangle"></i>
                     Números Faltantes ({{ resultado.estatisticas.total_faltantes }})
                 </h4>
-                <button type="button" class="btn btn-light copy-btn" id="copiarFaltantes" data-bs-toggle="tooltip" title="Copiar lista de números faltantes">
+                <button type="button" class="btn btn-light copy-btn" id="copiarFaltantes" data-bs-toggle="tooltip" title="Copiar lista de números faltantes" data-lista="{{ lista_faltantes_copia }}">
                     <i class="bi bi-clipboard"></i>
                     Copiar Lista
                 </button>
@@ -226,10 +226,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const listaFaltantes = document.getElementById('listaFaltantes');
     const toast = new bootstrap.Toast(document.getElementById('toastCopia'));
     
-    if (botaoCopiar && listaFaltantes) {
+    if (botaoCopiar) {
         botaoCopiar.addEventListener('click', async function() {
             try {
-                const texto = listaFaltantes.textContent.trim();
+                const texto = this.getAttribute('data-lista') || listaFaltantes.textContent.trim();
                 
                 if (navigator.clipboard && window.isSecureContext) {
                     // API moderna de clipboard

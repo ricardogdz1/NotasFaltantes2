@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
@@ -74,47 +75,3 @@ def processar_arquivo(request):
     return render(request, 'analisador/index.html')
 
 
-@csrf_exempt
-def copiar_numeros_faltantes(request):
-    """
-    View AJAX para retornar lista de números faltantes formatada para cópia.
-    """
-    if request.method == 'POST':
-        try:
-            # Recuperar dados da sessão ou do POST
-            arquivo_conteudo = request.POST.get('conteudo_arquivo', '')
-            
-            if not arquivo_conteudo:
-                return JsonResponse({
-                    'sucesso': False,
-                    'erro': 'Nenhum conteúdo para processar'
-                })
-            
-            # Processar novamente para obter números faltantes
-            analisador = AnalisadorSequencia()
-            resultado = analisador.processar_arquivo(arquivo_conteudo)
-            
-            if not resultado['sucesso']:
-                return JsonResponse({
-                    'sucesso': False,
-                    'erro': resultado['erro']
-                })
-            
-            lista_faltantes = analisador.gerar_lista_copia_faltantes()
-            
-            return JsonResponse({
-                'sucesso': True,
-                'lista_faltantes': lista_faltantes,
-                'total_faltantes': len(resultado['numeros_faltantes'])
-            })
-            
-        except Exception as e:
-            return JsonResponse({
-                'sucesso': False,
-                'erro': f'Erro ao gerar lista para cópia: {str(e)}'
-            })
-    
-    return JsonResponse({
-        'sucesso': False,
-        'erro': 'Método não permitido'
-    })
