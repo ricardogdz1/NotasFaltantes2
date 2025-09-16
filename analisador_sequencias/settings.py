@@ -131,14 +131,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Lista base de origens confiáveis
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:8000', 
-    'http://127.0.0.1:8000',
-    'https://notasfaltantes2.onrender.com',
-    'http://notasfaltantes2.onrender.com',
-    'http://notasfaltantes.com.br',
-    'http://www.notasfaltantes.com.br',
-]
+CSRF_TRUSTED_ORIGINS = ['*']
 
 # Adicionar automaticamente domínios do ALLOWED_HOSTS
 import os
