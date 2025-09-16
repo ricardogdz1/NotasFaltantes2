@@ -22,7 +22,7 @@
                         <p class="text-muted mb-3">Formatos suportados: .txt (máximo 5MB)</p>
                         <input type="file" id="arquivo" name="arquivo" accept=".txt" style="display: none;" required>
                         <div class="mt-3">
-                            <button type="button" class="btn btn-outline-primary" id="selectFileBtn">
+                            <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('arquivo').click(); console.log('Botão clicado');">
                                 <i class="bi bi-folder2-open"></i>
                                 Selecionar Arquivo
                             </button>
@@ -78,44 +78,54 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Versão simplificada e mais robusta
+function initFileUpload() {
     const fileInput = document.getElementById('arquivo');
     const fileUploadArea = document.getElementById('fileUploadArea');
-    const selectFileBtn = document.getElementById('selectFileBtn');
     const fileInfo = document.getElementById('fileInfo');
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
     const submitBtn = document.getElementById('submitBtn');
     const uploadForm = document.getElementById('uploadForm');
     
+    // Garantir que os elementos existem
+    if (!fileInput || !fileUploadArea || !fileInfo || !submitBtn || !uploadForm) {
+        console.error('Elementos não encontrados');
+        return;
+    }
+    
     let formSubmitted = false;
     
-    // Evento simples para o botão selecionar
-    selectFileBtn.onclick = function() {
-        fileInput.click();
-    };
-    
-    // Mudança no input de arquivo
-    fileInput.onchange = function() {
+    // Evento de mudança no input de arquivo
+    fileInput.addEventListener('change', function() {
+        console.log('Arquivo selecionado:', this.files);
         if (this.files && this.files.length > 0) {
             handleFileSelect(this.files[0]);
         }
-    };
+    });
     
-    // Drag and drop events
-    fileUploadArea.ondragover = function(e) {
+    // Click na área de upload
+    fileUploadArea.addEventListener('click', function(e) {
+        // Se clicou no botão, não fazer nada (o onclick do botão já cuida)
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+            return;
+        }
+        console.log('Clicou na área de upload');
+        fileInput.click();
+    });
+    
+    // Drag and drop
+    fileUploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
         this.style.borderColor = '#28a745';
         this.style.backgroundColor = 'rgba(40, 167, 69, 0.1)';
-    };
+    });
     
-    fileUploadArea.ondragleave = function(e) {
+    fileUploadArea.addEventListener('dragleave', function(e) {
         e.preventDefault();
         this.style.borderColor = '#007bff';
         this.style.backgroundColor = 'rgba(0, 123, 255, 0.05)';
-    };
+    });
     
-    fileUploadArea.ondrop = function(e) {
+    fileUploadArea.addEventListener('drop', function(e) {
         e.preventDefault();
         this.style.borderColor = '#007bff';
         this.style.backgroundColor = 'rgba(0, 123, 255, 0.05)';
@@ -123,103 +133,84 @@ document.addEventListener('DOMContentLoaded', function() {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
-            if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')) {
-                // Simular seleção do arquivo
+            if (file.name.toLowerCase().endsWith('.txt')) {
+                // Criar um novo FileList
                 const dt = new DataTransfer();
                 dt.items.add(file);
                 fileInput.files = dt.files;
                 
                 handleFileSelect(file);
             } else {
-                showAlert('Por favor, selecione apenas arquivos .txt', 'danger');
+                alert('Por favor, selecione apenas arquivos .txt');
             }
         }
-    };
-    
-    // Click na área de upload (mas não no botão)
-    fileUploadArea.onclick = function(e) {
-        if (e.target !== selectFileBtn && 
-            !selectFileBtn.contains(e.target) && 
-            e.target !== fileInput) {
-            fileInput.click();
-        }
-    };
+    });
     
     function handleFileSelect(file) {
-        if (file) {
-            fileName.textContent = file.name;
-            fileSize.textContent = `Tamanho: ${(file.size / 1024).toFixed(2)} KB`;
-            
-            // Mostrar informações do arquivo
-            fileInfo.style.display = 'block';
-            
-            // Validar tamanho (5MB máximo)
-            if (file.size > 5 * 1024 * 1024) {
-                fileInfo.className = 'alert alert-danger';
-                fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 5MB)';
-                submitBtn.disabled = true;
-            } else if (!file.type.includes('text') && !file.name.toLowerCase().endsWith('.txt')) {
-                fileInfo.className = 'alert alert-warning';
-                fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Aviso:</strong> Certifique-se de que é um arquivo de texto (.txt)';
-                submitBtn.disabled = false;
-            } else {
-                fileInfo.className = 'alert alert-info';
-                fileInfo.innerHTML = `
-                    <i class="bi bi-file-earmark-text"></i>
-                    <strong>Arquivo selecionado:</strong> ${file.name}
-                    <br><small class="text-muted">Tamanho: ${(file.size / 1024).toFixed(2)} KB</small>
-                `;
-                submitBtn.disabled = false;
-            }
+        console.log('Processando arquivo:', file.name);
+        
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        
+        if (fileName) fileName.textContent = file.name;
+        if (fileSize) fileSize.textContent = `Tamanho: ${(file.size / 1024).toFixed(2)} KB`;
+        
+        // Mostrar informações do arquivo
+        fileInfo.style.display = 'block';
+        
+        // Validar tamanho (5MB máximo)
+        if (file.size > 5 * 1024 * 1024) {
+            fileInfo.className = 'alert alert-danger';
+            fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 5MB)';
+            submitBtn.disabled = true;
+        } else {
+            fileInfo.className = 'alert alert-info';
+            fileInfo.innerHTML = `
+                <i class="bi bi-file-earmark-text"></i>
+                <strong>Arquivo selecionado:</strong> ${file.name}
+                <br><small class="text-muted">Tamanho: ${(file.size / 1024).toFixed(2)} KB</small>
+            `;
+            submitBtn.disabled = false;
         }
     }
     
-    function showAlert(message, type) {
-        // Remove alertas anteriores
-        const existingAlerts = document.querySelectorAll('.temp-alert');
-        existingAlerts.forEach(alert => alert.remove());
-        
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show mt-3 temp-alert`;
-        alertDiv.innerHTML = `
-            <i class="bi bi-exclamation-triangle"></i>
-            ${message}
-            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
-        `;
-        
-        // Inserir antes da área de upload
-        fileUploadArea.parentNode.insertBefore(alertDiv, fileUploadArea);
-        
-        // Remover automaticamente após 5 segundos
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.remove();
-            }
-        }, 5000);
-    }
-    
-    // Controle de submit do formulário
-    uploadForm.onsubmit = function(e) {
-        // Evitar múltiplos submits
+    // Controle de submit
+    uploadForm.addEventListener('submit', function(e) {
         if (formSubmitted) {
             e.preventDefault();
             return false;
         }
         
-        // Verificar se um arquivo foi selecionado
         if (!fileInput.files || fileInput.files.length === 0) {
             e.preventDefault();
-            showAlert('Por favor, selecione um arquivo antes de continuar.', 'warning');
+            alert('Por favor, selecione um arquivo antes de continuar.');
             return false;
         }
         
-        // Marcar como enviado e mostrar loading
         formSubmitted = true;
         submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processando...';
         submitBtn.disabled = true;
         
         return true;
-    };
-});
+    });
+}
+
+// Inicializar quando a página carregar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFileUpload);
+} else {
+    initFileUpload();
+}
+
+// Função global para o botão (fallback)
+function selecionarArquivo() {
+    console.log('Função global chamada');
+    const fileInput = document.getElementById('arquivo');
+    if (fileInput) {
+        fileInput.click();
+    } else {
+        console.error('Input de arquivo não encontrado');
+    }
+}
 </script>
 {% endblock %}
