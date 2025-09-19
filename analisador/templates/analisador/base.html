@@ -7,24 +7,12 @@
     <title>{% block title %}Analisador de Sequências Numéricas{% endblock %}</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6923387464279652"
      crossorigin="anonymous"></script>
-    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'analisador/css/styles.css' %}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'analisador/css/styles.css' %}">
-    <style>
-    div.header {
-    background: linear-gradient(135deg, #007bff, #0056b3) !important;
-    background-color: #007bff !important;
-    color: white !important;
-    padding: 2rem 0 !important;
-    margin-bottom: 2rem !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-    }
-    </style>
     
     {% block extra_css %}{% endblock %}
 </head>
