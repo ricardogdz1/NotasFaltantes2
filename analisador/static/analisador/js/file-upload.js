@@ -79,7 +79,7 @@
             fileInfo.style.display = 'block';
             
             // Validar tamanho (5MB máximo)
-            if (file.size > 5 * 1024 * 1024) {
+            if (file.size > 30 * 1024 * 1024) {
                 fileInfo.className = 'alert alert-danger';
                 fileInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Erro:</strong> Arquivo muito grande (máximo 5MB)';
                 submitBtn.disabled = true;

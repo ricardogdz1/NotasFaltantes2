@@ -39,9 +39,9 @@ def processar_arquivo(request):
         messages.error(request, 'Por favor, envie apenas arquivos com extensão .txt')
         return redirect('analisador:index')
     
-    # Validar tamanho do arquivo (máximo 5MB)
-    if arquivo.size > 5 * 1024 * 1024:  # 5MB em bytes
-        messages.error(request, 'Arquivo muito grande. Tamanho máximo permitido: 5MB')
+    # Validar tamanho do arquivo (máximo 30MB)
+    if arquivo.size > 30 * 1024 * 1024:  # 30MB em bytes
+        messages.error(request, 'Arquivo muito grande. Tamanho máximo permitido: 30MB')
         return redirect('analisador:index')
     
     try:
