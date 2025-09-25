@@ -58,7 +58,15 @@ def processar_arquivo(request):
         resultado = analisador.processar_arquivo(conteudo)
         
         if not resultado['sucesso']:
-            messages.error(request, resultado['erro'])
+            # Verificar se é erro de gap muito grande
+            if resultado.get('gap_muito_grande'):
+                messages.warning(request, 
+                    f"{resultado['erro']}<br><br>"
+                    f"<strong>Dica:</strong> Para sequências com gaps muito grandes (como 10000, 30000, 50000), "
+                    f"considere analisar cada bloco separadamente ou usar uma abordagem diferente."
+                )
+            else:
+                messages.error(request, resultado['erro'])
             return redirect('analisador:index')
         
         # Preparar contexto para o template
@@ -68,12 +76,30 @@ def processar_arquivo(request):
             'lista_faltantes_copia': analisador.gerar_lista_copia_faltantes(),
             'tem_faltantes': len(resultado['numeros_faltantes']) > 0,
             'tem_duplicados': len(resultado['numeros_duplicados']) > 0,
+            'tem_gaps_grandes': resultado.get('gap_detectado', []),
+            'relatorio_gaps': analisador.gerar_relatorio_gaps() if resultado.get('gap_detectado') else None,
         }
+        
+        # Adicionar aviso se há gaps grandes
+        if resultado.get('gap_detectado'):
+            messages.warning(request, 
+                f"Detectados gaps grandes na sequência. "
+                f"A análise foi otimizada para evitar problemas de memória. "
+                f"Verifique o relatório de gaps no resultado."
+            )
         
         return render(request, 'analisador/resultado.html', contexto)
         
     except UnicodeDecodeError:
         messages.error(request, 'Erro ao ler o arquivo. Certifique-se de que é um arquivo de texto válido (UTF-8).')
+        return redirect('analisador:index')
+    
+    except MemoryError:
+        messages.error(request, 
+            'Erro de memória ao processar arquivo. '
+            'O arquivo contém uma sequência muito grande. '
+            'Tente dividir em arquivos menores ou reduzir o intervalo da sequência.'
+        )
         return redirect('analisador:index')
     
     except Exception as e:
