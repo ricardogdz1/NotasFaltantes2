@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Analisador de Sequências Numéricas{% endblock %}</title>
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6923387464279652"
      crossorigin="anonymous"></script>
-    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
@@ -48,19 +48,44 @@
         
         {% block content %}
         {% endblock %}
+    </div> 
+
+     <!-- Google AdSense - Banner no meio do conteúdo -->
+        {% block ad_meio %}
+        <div class="row my-5">
+            <div class="col-12 text-center">
+                <!-- Anúncio no meio da página -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6923387464279652"
+                     data-ad-slot="3618112818"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+        {% endblock %}
     </div>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6923387464279652"
-     crossorigin="anonymous"></script>
-<!-- Teste4 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-6923387464279652"
-     data-ad-slot="3618112818"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+    
+    <!-- Google AdSense - Banner antes do footer -->
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <!-- Anúncio antes do footer -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-6923387464279652"
+                     data-ad-slot="3618112818"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </div>
     
     <!-- Footer -->
     <footer class="mt-5 py-4 bg-light">
